@@ -15,6 +15,6 @@
     * Femoral neck and spine are not available 
     * Femoral neck not available, spine available but a T-score > -2.5
         * **Implies if femoral unavailable, but spine < -2.5 then moderate???**
-    * If femoral spine is much lower than -2.5 or T-scores of other skeletal sites are much lower than the value of the femoral neck
+    * If femoral neck is much lower than -2.5 or T-scores of other skeletal sites are much lower than the value of the femoral neck
 * How to decide L1 to L4 technical artifacts
 * Non dominant forearm
