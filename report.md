@@ -18,7 +18,7 @@ History Used For Risk Determination
 ## BMD Data
 * BMD
 * Age
-    * >= 50 years
+    * \>= 50 years
         * T-score
     * < 50 years
         * Z-score
