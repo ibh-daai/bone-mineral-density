@@ -23,7 +23,7 @@ History Used For Risk Determination
     * < 50 years
         * Z-score
 * reference database used
-Note: For men 50 years of age or older, there will be two sets of BMD T-scores and two reference databases listed – white male reference database for diagnostic categorization and white female reference database for risk determination.
+* Note: For men 50 years of age or older, there will be two sets of BMD T-scores and two reference databases listed – white male reference database for diagnostic categorization and white female reference database for risk determination.
 ## Limitations
 ## Interpretation
 ## Recommended Follow-Up Date
