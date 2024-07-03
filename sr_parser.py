@@ -218,23 +218,45 @@ def parse_age(age_str):
     return None
 
 
+def add_if_exists(ds, field):
+    """Checks if a field exists in a DICOM dataset and returns its value, otherwise returns 0.
+
+    Args:
+        ds (pydicom.dataset.FileDataset): The DICOM dataset to search for the field.
+        field (str): The name of the field to search for.
+
+    Returns:
+        The value of the field if it exists in the dataset, otherwise 0.
+    """
+    if field in ds:
+        return ds[field].value
+    else:
+        return None
+
+
 def convert_dicom_to_json(dicom_path):
     ds = pydicom.dcmread(dicom_path)
     report = {}
     report["path"] = dicom_path
-    report["PatientID"] = ds.PatientID
-    report["PatientBirthDate"] = ds.PatientBirthDate
-    report["AccessionNumber"] = ds.AccessionNumber
-    report["SOPInstanceUID"] = ds.SOPInstanceUID
-    report["PatientSex"] = ds.PatientSex
-    report["PatientAge"] = parse_age(ds.PatientAge)
-    report["PatientSize"] = ds.PatientSize
-    report["PatientWeight"] = ds.PatientWeight
-    report["EthnicGroup"] = ds.EthnicGroup
-    report["StudyTime"] = ds.StudyTime
-    report["StudyDate"] = ds.StudyDate
-    report["StudyDescription"] = ds.StudyDescription
-    report["StudyInstanceUID"] = ds.StudyInstanceUID
+    report["PatientID"] = add_if_exists(ds, "PatientID")
+    report["PatientBirthDate"] = add_if_exists(ds, "PatientBirthDate")
+    report["AccessionNumber"] = add_if_exists(ds, "AccessionNumber")
+    report["SOPInstanceUID"] = add_if_exists(ds, "SOPInstanceUID")
+    report["PatientSex"] = add_if_exists(ds, "PatientSex")
+    report["PatientAge"] = parse_age(add_if_exists(ds, "PatientAge"))
+    report["PatientSize"] = add_if_exists(ds, "PatientSize")
+    report["PatientWeight"] = add_if_exists(ds, "PatientWeight")
+    report["EthnicGroup"] = add_if_exists(ds, "EthnicGroup")
+    report["StudyTime"] = add_if_exists(ds, "StudyTime")
+    report["StudyDate"] = add_if_exists(ds, "StudyDate")
+    report["StudyDescription"] = add_if_exists(ds, "StudyDescription")
+    report["StudyInstanceUID"] = add_if_exists(ds, "StudyInstanceUID")
+    report["Modality"] = add_if_exists(ds, "Modality")
+    report["InstitutionName"] = add_if_exists(ds, "InstitutionName")
+    report["StationName"] = add_if_exists(ds, "StationName")
+    report["Manufacturer"] = add_if_exists(ds, "Manufacturer")
+    report["ManufacturerModelName"] = add_if_exists(ds, "ManufacturerModelName")
+    report["SoftwareVersions"] = add_if_exists(ds, "SoftwareVersions")
 
     _, report = process_container_type(ds, report)
     return report

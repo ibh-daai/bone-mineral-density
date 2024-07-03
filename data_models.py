@@ -44,6 +44,12 @@ class Study(Base):
     size = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
     ethnicity = Column(String, nullable=True)
+    modality = Column(String, nullable=True)
+    institution_name = Column(String, nullable=True)
+    station_name = Column(String, nullable=True)
+    manufacturer = Column(String, nullable=True)
+    manufacturer_model_name = Column(String, nullable=True)
+    software_versions = Column(String, nullable=True)
 
     patient = relationship("Patient", back_populates="studies")
     report = relationship("Report", uselist=False, back_populates="study")
