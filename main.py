@@ -115,6 +115,7 @@ if __name__ == "__main__":
                 "Right Femur",
                 "Left Forearm",
                 "Right Forearm",
+                "DualFemur",
             ]:
                 if body_part in dxa_report:
                     body_part_data = dxa_report[body_part]
