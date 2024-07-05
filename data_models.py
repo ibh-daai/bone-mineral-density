@@ -29,6 +29,7 @@ class Patient(Base):
 
     studies = relationship("Study", back_populates="patient")
     bmd_values = relationship("BMDValue", back_populates="patient")
+    bmd_trend_values = relationship("BMDTrendValue", back_populates="patient")
 
 
 class Study(Base):
@@ -54,6 +55,7 @@ class Study(Base):
     patient = relationship("Patient", back_populates="studies")
     report = relationship("Report", uselist=False, back_populates="study")
     bmd_values = relationship("BMDValue", back_populates="study")
+    bmd_trend_values = relationship("BMDTrendValue", back_populates="study")
 
 
 class Report(Base):
@@ -65,6 +67,7 @@ class Report(Base):
 
     study = relationship("Study", back_populates="report")
     bmd_values = relationship("BMDValue", back_populates="report")
+    bmd_trend_values = relationship("BMDTrendValue", back_populates="report")
 
 
 class BMDValue(Base):
@@ -84,3 +87,27 @@ class BMDValue(Base):
     report = relationship("Report", back_populates="bmd_values")
     study = relationship("Study", back_populates="bmd_values")
     patient = relationship("Patient", back_populates="bmd_values")
+
+
+# Define the BMDTrendValue model linked to the Report
+class BMDTrendValue(Base):
+    __tablename__ = "bmd_trend_values"
+
+    id = Column(Integer, primary_key=True)
+    report_id = Column(Integer, ForeignKey("reports.id"), nullable=False)
+    study_id = Column(Integer, ForeignKey("studies.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+
+    body_part = Column(String, nullable=False)  # e.g., 'spine', 'hip'
+    region = Column(String, nullable=False)  # e.g., 'L1-L4'
+
+    date = Column(DateTime, nullable=False)
+    age = Column(Float, nullable=True)
+    bmd = Column(Float, nullable=False)
+
+    change_vs_previous = Column(Float, nullable=True)
+    pchange_vs_previous = Column(Float, nullable=True)
+
+    report = relationship("Report", back_populates="bmd_trend_values")
+    study = relationship("Study", back_populates="bmd_trend_values")
+    patient = relationship("Patient", back_populates="bmd_trend_values")

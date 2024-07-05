@@ -1,9 +1,19 @@
 from sr_parser import convert_dicom_to_json
 from datetime import datetime
-from data_models import Patient, Study, Report, BMDValue, Base
+from data_models import Patient, Study, Report, BMDValue, BMDTrendValue, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import glob
+
+
+def get_value_from_dict(data_dict, keys):
+    """Extract value from nested dictionary if keys exist, return None otherwise."""
+    for key in keys:
+        if key in data_dict:
+            data_dict = data_dict[key]
+        else:
+            return None
+    return data_dict
 
 
 if __name__ == "__main__":
@@ -121,21 +131,57 @@ if __name__ == "__main__":
                     body_part_data = dxa_report[body_part]
                     for region_name, region_data in body_part_data.items():
                         try:
-                            bmd = float(region_data["BMD"]["value"])
-                            t_score = float(region_data["BMD_TSCORE"])
-                            z_score = float(region_data["BMD_ZSCORE"])
-                            bmd_value = BMDValue(
-                                report_id=report.id,
-                                study_id=study.id,
-                                patient_id=patient.id,
-                                body_part=body_part,
-                                region=region_name,
-                                bmd=float(region_data["BMD"]["value"]),
-                                t_score=float(region_data["BMD_TSCORE"]),
-                                z_score=float(region_data["BMD_ZSCORE"]),
-                            )
-                            session.add(bmd_value)
-                            session.commit()
+                            if "Trend" in region_name:
+                                for date_str, trend_data in region_data.items():
+                                    age = get_value_from_dict(
+                                        trend_data, ["AGE", "value"]
+                                    )
+                                    bmd = get_value_from_dict(
+                                        trend_data, ["BMD", "value"]
+                                    )
+                                    change_vs_previous = get_value_from_dict(
+                                        trend_data,
+                                        ["CHANGE_VS_PREVIOUS", "BMD", "value"],
+                                    )
+                                    pchange_vs_previous = get_value_from_dict(
+                                        trend_data,
+                                        ["PCHANGE_VS_PREVIOUS", "BMD", "value"],
+                                    )
+                                    date = datetime.strptime(date_str, "%d-%b-%Y")
+                                    bmd_trend_value = BMDTrendValue(
+                                        report_id=report.id,
+                                        study_id=study.id,
+                                        patient_id=patient.id,
+                                        body_part=body_part,
+                                        region=region_name,
+                                        date=date,
+                                        age=age,
+                                        bmd=bmd,
+                                        change_vs_previous=change_vs_previous,
+                                        pchange_vs_previous=pchange_vs_previous,
+                                    )
+                                    session.add(bmd_trend_value)
+                                    session.commit()
+                            else:
+                                bmd = get_value_from_dict(region_data, ["BMD", "value"])
+                                t_score = get_value_from_dict(
+                                    region_data, ["BMD_TSCORE"]
+                                )
+                                z_score = get_value_from_dict(
+                                    region_data, ["BMD_ZSCORE"]
+                                )
+                                bmd_value = BMDValue(
+                                    report_id=report.id,
+                                    study_id=study.id,
+                                    patient_id=patient.id,
+                                    body_part=body_part,
+                                    region=region_name,
+                                    bmd=float(region_data["BMD"]["value"]),
+                                    t_score=float(region_data["BMD_TSCORE"]),
+                                    z_score=float(region_data["BMD_ZSCORE"]),
+                                )
+                                session.add(bmd_value)
+                                session.commit()
                         except Exception as e:
-                            continue
-                            # print(f"Error {e}")
+                            # continue
+                            print(f"Error {accession} {e}")
