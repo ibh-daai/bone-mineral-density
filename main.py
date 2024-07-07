@@ -143,6 +143,10 @@ if __name__ == "__main__":
                                         trend_data,
                                         ["CHANGE_VS_PREVIOUS", "BMD", "value"],
                                     )
+                                    change_vs_baseline = get_value_from_dict(
+                                        trend_data,
+                                        ["CHANGE_VS_BASELINE", "BMD", "value"],
+                                    )
                                     pchange_vs_previous = get_value_from_dict(
                                         trend_data,
                                         ["PCHANGE_VS_PREVIOUS", "BMD", "value"],
@@ -159,6 +163,7 @@ if __name__ == "__main__":
                                         bmd=bmd,
                                         change_vs_previous=change_vs_previous,
                                         pchange_vs_previous=pchange_vs_previous,
+                                        change_vs_baseline=change_vs_baseline,
                                     )
                                     session.add(bmd_trend_value)
                                     session.commit()
@@ -170,18 +175,18 @@ if __name__ == "__main__":
                                 z_score = get_value_from_dict(
                                     region_data, ["BMD_ZSCORE"]
                                 )
-                                bmd_value = BMDValue(
-                                    report_id=report.id,
-                                    study_id=study.id,
-                                    patient_id=patient.id,
-                                    body_part=body_part,
-                                    region=region_name,
-                                    bmd=float(region_data["BMD"]["value"]),
-                                    t_score=float(region_data["BMD_TSCORE"]),
-                                    z_score=float(region_data["BMD_ZSCORE"]),
-                                )
-                                session.add(bmd_value)
-                                session.commit()
+                                if bmd:
+                                    bmd_value = BMDValue(
+                                        report_id=report.id,
+                                        study_id=study.id,
+                                        patient_id=patient.id,
+                                        body_part=body_part,
+                                        region=region_name,
+                                        bmd=bmd,
+                                        t_score=t_score,
+                                        z_score=z_score,
+                                    )
+                                    session.add(bmd_value)
+                                    session.commit()
                         except Exception as e:
-                            # continue
                             print(f"Error {accession} {e}")

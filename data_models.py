@@ -107,6 +107,7 @@ class BMDTrendValue(Base):
 
     change_vs_previous = Column(Float, nullable=True)
     pchange_vs_previous = Column(Float, nullable=True)
+    change_vs_baseline = Column(Float, nullable=True)
 
     report = relationship("Report", back_populates="bmd_trend_values")
     study = relationship("Study", back_populates="bmd_trend_values")
