@@ -4,6 +4,15 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 
+def format_score(number):
+    return f"+{number}" if number >= 0 else str(number)
+
+
+def interpolate(value, x1, x2, y1, y2):
+    return y1 + (value - x1) * (y2 - y1) / (x2 - x1)
+
+
+# Data Processing Functions
 def return_prev_exam_dates(sample, study_id, bmd_trend_values):
     study_date = sample["date_time"].values[0]
     study_date_normalized = pd.to_datetime(study_date).normalize()
@@ -32,13 +41,7 @@ def return_prev_exam_dates(sample, study_id, bmd_trend_values):
         return reference_date_str, baseline_date_str
 
 
-def format_score(number):
-    if number >= 0:
-        return f"+{number}"
-    else:
-        return number
-
-
+# Turn Findings into a string
 def get_findings_text(
     findings_df, age, findings_type, reference=None, cannot_be_compared=False
 ):
@@ -74,6 +77,7 @@ def get_findings_text(
     return " ".join(findings)
 
 
+## Get Value based on Age
 def get_numerical_values(findings_df, age):
     t_score = findings_df["t_score"].values[0]
     z_score = findings_df["z_score"].values[0]
@@ -83,6 +87,7 @@ def get_numerical_values(findings_df, age):
         return z_score
 
 
+## Get bmd change value
 def get_change_value(findings_df, reference_df):
     bmd = findings_df["bmd"].values[0]
     if reference_df is not None and not reference_df.empty:
@@ -94,6 +99,7 @@ def get_change_value(findings_df, reference_df):
         return None
 
 
+## Get change based on hospital and lsc
 def get_change_type(value, region, institution_name):
     if institution_name == "Mississauga Hospital":
         lsc_spine = 0.033
@@ -181,6 +187,7 @@ def get_change_type(value, region, institution_name):
                 return {"region": "hip", "significant": False, "change": None}
 
 
+## Logic to exclude verterbrae
 def filter_vertebra_by_tscore(t_scores):
     # Filter out None values from t_scores
     filtered_scores = {
@@ -231,6 +238,7 @@ def filter_vertebra_by_tscore(t_scores):
     }
 
 
+## Select the best vertebra combination based on exclusion
 def select_vertebra_combination(filtered_t_scores):
     vertebrae = list(filtered_t_scores.keys())
 
@@ -671,10 +679,6 @@ def get_fracture_risk(
                 age_group1, age_group2 = caroc_table[i], caroc_table[i + 1]
                 break
 
-    # Interpolate T-score thresholds
-    def interpolate(value, x1, x2, y1, y2):
-        return y1 + (value - x1) * (y2 - y1) / (x2 - x1)
-
     age1, low1, high1 = age_group1
     age2, low2, high2 = age_group2
     low_risk_threshold = interpolate(age, age1, age2, low1, low2)
@@ -910,9 +914,7 @@ This examination can serve as a baseline for future follow-up examinations, howe
     return "\n\n".join(findings)
 
 
-def get_report_text(
-    reference_examination, technique, findings, summary
-):
+def get_report_text(reference_examination, technique, findings, summary):
     return f"""
 EXAM: 
 [<Examination Description>] 

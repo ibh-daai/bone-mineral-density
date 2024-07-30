@@ -2,8 +2,8 @@ import os
 from requests.auth import HTTPBasicAuth
 from dicomweb_client.session_utils import create_session_from_auth
 import pydicom
-from pydicom.dataset import Dataset, FileDataset
-from pydicom.uid import generate_uid, ExplicitVRLittleEndian, CTImageStorage
+from pydicom.dataset import Dataset, FileMetaDataset
+from pydicom.uid import generate_uid, ExplicitVRLittleEndian, ComprehensiveSRStorage
 from pydicom.sequence import Sequence
 from datetime import datetime
 
@@ -26,32 +26,55 @@ def orthanc_get_url_root():
     return "http://orthanc:8042"
 
 
+def add_if_exists(ds: Dataset, field: str):
+    """Checks if a field exists in a DICOM dataset and returns its value, otherwise returns 0.
+
+    Args:
+        ds (pydicom.dataset.FileDataset): The DICOM dataset to search for the field.
+        field (str): The name of the field to search for.
+
+    Returns:
+        The value of the field if it exists in the dataset, otherwise 0.
+    """
+    if field in ds:
+        return ds[field].value
+    else:
+        return ""
+
+
 # Function to create a basic SR document
 def create_sr(ds, reference_examination, technique, findings, summary):
     # Create a new FileDataset instance (instance of Dataset)
-    file_meta = Dataset()
-    file_meta.MediaStorageSOPClassUID = generate_uid()
-    file_meta.MediaStorageSOPInstanceUID = generate_uid()
-    file_meta.ImplementationClassUID = generate_uid()
+    predictor_uid_root = "1.2.826.0.1.3680043.10.1082."
+    series_num = 3
+    sop_uid = generate_uid(f"{predictor_uid_root}2.{series_num}.")
+    series_uid = generate_uid(f"{predictor_uid_root}2.{series_num}.")
+
+    file_meta = FileMetaDataset()
+    file_meta.MediaStorageSOPClassUID = ComprehensiveSRStorage
+    file_meta.MediaStorageSOPInstanceUID = sop_uid
+    file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
 
     # Create the FileDataset instance
-    sr_ds = FileDataset("sr.dcm", {}, file_meta=file_meta, preamble=b"\0" * 128)
+    sr_ds = Dataset()
 
     # Set the necessary metadata
+    sr_ds.Modality = "SR"
+    sr_ds.SOPClassUID = ComprehensiveSRStorage
+    sr_ds.SOPInstanceUID = sop_uid
+    sr_ds.SeriesInstanceUID = series_uid
+    sr_ds.SeriesNumber = "3"
+    sr_ds.InstanceNumber = "1"
+
     sr_ds.ContentDate = datetime.now().strftime("%Y%m%d")
     sr_ds.ContentTime = datetime.now().strftime("%H%M%S")
     sr_ds.InstanceCreationDate = sr_ds.ContentDate
     sr_ds.InstanceCreationTime = sr_ds.ContentTime
-    sr_ds.Modality = "SR"
-    sr_ds.SOPClassUID = "1.2.840.10008.5.1.4.1.1.88.11"
-    sr_ds.SOPInstanceUID = generate_uid(f"1.2.826.0.1.3680043.10.1082.2." + "3.")
-    sr_ds.SeriesInstanceUID = generate_uid(f"1.2.826.0.1.3680043.10.1082.2." + "3.")
-    sr_ds.SeriesNumber = "3"
-    sr_ds.StudyInstanceUID = ds.StudyInstanceUID
-    sr_ds.PatientID = ds.PatientID
-    sr_ds.PatientName = ds.PatientName
-    sr_ds.PatientBirthDate = ds.PatientBirthDate
-    sr_ds.PatientSex = ds.PatientSex
+    sr_ds.StudyInstanceUID = add_if_exists(ds, "StudyInstanceUID")
+    sr_ds.PatientID = add_if_exists(ds, "PatientID")
+    sr_ds.PatientName = add_if_exists(ds, "PatientName")
+    sr_ds.PatientBirthDate = add_if_exists(ds, "PatientBirthDate")
+    sr_ds.PatientSex = add_if_exists(ds, "PatientSex")
 
     # Add content sequence with basic SR structure
     sr_ds.ContentSequence = Sequence()
@@ -60,7 +83,7 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     content_item = Dataset()
     content_item.ValueType = "TEXT"
     content_item.ConceptNameCodeSequence = Sequence([Dataset()])
-    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-0"
+    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-1"
     content_item.ConceptNameCodeSequence[0].CodingSchemeDesignator = "AIDE"
     content_item.ConceptNameCodeSequence[0].CodeMeaning = "Reference Examination"
     content_item.TextValue = reference_examination
@@ -70,7 +93,7 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     content_item = Dataset()
     content_item.ValueType = "TEXT"
     content_item.ConceptNameCodeSequence = Sequence([Dataset()])
-    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-1"
+    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-2"
     content_item.ConceptNameCodeSequence[0].CodingSchemeDesignator = "AIDE"
     content_item.ConceptNameCodeSequence[0].CodeMeaning = "Technique"
     content_item.TextValue = technique
@@ -80,7 +103,7 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     content_item = Dataset()
     content_item.ValueType = "TEXT"
     content_item.ConceptNameCodeSequence = Sequence([Dataset()])
-    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-2"
+    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-3"
     content_item.ConceptNameCodeSequence[0].CodingSchemeDesignator = "AIDE"
     content_item.ConceptNameCodeSequence[0].CodeMeaning = "Findings"
     content_item.TextValue = findings
@@ -90,7 +113,7 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     content_item = Dataset()
     content_item.ValueType = "TEXT"
     content_item.ConceptNameCodeSequence = Sequence([Dataset()])
-    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-3"
+    content_item.ConceptNameCodeSequence[0].CodeValue = "0-0-4"
     content_item.ConceptNameCodeSequence[0].CodingSchemeDesignator = "AIDE"
     content_item.ConceptNameCodeSequence[0].CodeMeaning = "Summary"
     content_item.TextValue = summary
@@ -100,6 +123,11 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     sr_ds.ReferencedStudySequence = Sequence([Dataset()])
     sr_ds.ReferencedStudySequence[0].ReferencedSOPClassUID = ds.SOPClassUID
     sr_ds.ReferencedStudySequence[0].ReferencedSOPInstanceUID = ds.SOPInstanceUID
+
+    sr_ds.fix_meta_info()
+    sr_ds.file_meta = file_meta
+    sr_ds.is_implicit_VR = False
+    sr_ds.is_little_endian = True
 
     return sr_ds
 
