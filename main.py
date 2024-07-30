@@ -4,6 +4,7 @@ from data_models import Patient, Study, Report, BMDValue, BMDTrendValue, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import glob
+from prefect import flow
 
 
 def get_value_from_dict(data_dict, keys):
@@ -16,7 +17,8 @@ def get_value_from_dict(data_dict, keys):
     return data_dict
 
 
-if __name__ == "__main__":
+@flow(name="extract-studies", log_prints=True)
+def extract_studies():
     # DATABASE_URI = os.getenv("RESULTS_DATABASE_CONNECTION_URL")
     # engine = create_engine(DATABASE_URI)
     engine = create_engine("sqlite:///bmd_tool.db")

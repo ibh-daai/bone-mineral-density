@@ -1,0 +1,12 @@
+version: '3'
+services:
+  bmd:
+    build: .
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    networks:
+      - ai_network
+networks:
+  ai_network:
+    external: true
