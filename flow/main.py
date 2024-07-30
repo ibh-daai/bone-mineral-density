@@ -280,7 +280,6 @@ def parse_study(orthanc_study_uid):
                                 session.commit()
                     except Exception as e:
                         logger.info(f"Error {accession} {e}")
-    return accession
 
 
 @task(retries=3, retry_delay_seconds=5)
