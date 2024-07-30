@@ -1,7 +1,25 @@
 version: '3'
 services:
+  postgres:
+    build: postgres
+    ports: ["5433:5432"]
+    restart: unless-stopped
+    networks:
+      - ai_network
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TIME_ZONE}
+    volumes:
+      - bmd-postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      retries: 5
   bmd:
-    build: .
+    build: flow
+    depends_on: [postgres]
     restart: unless-stopped
     stdin_open: true
     tty: true
@@ -10,3 +28,5 @@ services:
 networks:
   ai_network:
     external: true
+volumes:
+  bmd-postgres-db-volume:
