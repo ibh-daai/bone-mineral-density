@@ -1,6 +1,6 @@
 version: '3'
 services:
-  postgres:
+  postgres-bmd:
     build: postgres
     ports: ["5433:5432"]
     restart: unless-stopped
@@ -19,7 +19,7 @@ services:
       retries: 5
   bmd:
     build: flow
-    depends_on: [postgres]
+    depends_on: [postgres-bmd]
     restart: unless-stopped
     stdin_open: true
     tty: true
@@ -28,7 +28,7 @@ services:
     environment:
       ORTHANC_API_USER: ${ORTHANC_API_USER}
       ORTHANC_API_PASSWORD: ${ORTHANC_API_PASSWORD}
-      DATABASE_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-bmd:5432/${POSTGRES_DB}
 networks:
   ai_network:
     external: true
