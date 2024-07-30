@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, JSON
 from datetime import datetime
 
 Base = declarative_base()
@@ -112,3 +112,17 @@ class BMDTrendValue(Base):
     report = relationship("Report", back_populates="bmd_trend_values")
     study = relationship("Study", back_populates="bmd_trend_values")
     patient = relationship("Patient", back_populates="bmd_trend_values")
+
+
+class Result(Base):
+    __tablename__ = "results"
+    id = Column(Integer, primary_key=True)
+    sopInstanceUID = Column(String)
+    seriesInstanceUID = Column(String)
+    studyInstanceUID = Column(String)
+    patientID = Column(String)
+    accession = Column(String)
+    diagnostic_category = Column(String)
+    fracture_risk = Column(String)
+    generatedReport = Column(String)
+    createdAt = Column(DateTime, default=datetime.utcnow)
