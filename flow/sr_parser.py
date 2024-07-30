@@ -213,7 +213,9 @@ def process_container_type(container, report):
 
 
 def parse_age(age_str):
-    if age_str.endswith("Y"):
+    if age_str is None:
+        return None
+    elif age_str.endswith("Y"):
         return int(age_str[:-1])
     return None
 
