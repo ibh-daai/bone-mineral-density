@@ -234,10 +234,8 @@ def add_if_exists(ds, field):
         return None
 
 
-def convert_dicom_to_json(dicom_path):
-    ds = pydicom.dcmread(dicom_path)
+def convert_dicom_to_json(ds):
     report = {}
-    report["path"] = dicom_path
     report["PatientID"] = add_if_exists(ds, "PatientID")
     report["PatientBirthDate"] = add_if_exists(ds, "PatientBirthDate")
     report["AccessionNumber"] = add_if_exists(ds, "AccessionNumber")

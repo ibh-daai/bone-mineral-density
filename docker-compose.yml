@@ -25,6 +25,10 @@ services:
     tty: true
     networks:
       - ai_network
+    environment:
+      ORTHANC_API_USER: ${ORTHANC_API_USER}
+      ORTHANC_API_PASSWORD: ${ORTHANC_API_PASSWORD}
+      DATABASE_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 networks:
   ai_network:
     external: true
