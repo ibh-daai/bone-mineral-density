@@ -114,7 +114,7 @@ def download_study(orthanc_study_uid):
 @task()
 def parse_study(orthanc_study_uid):
     logger = get_run_logger()
-    logger.info(f"Study {orthanc_study_uid} being downloaded")
+    logger.info(f"Study {orthanc_study_uid} being parsed")
 
     DATABASE_URI = os.getenv("DATABASE_URI")
     engine = create_engine(DATABASE_URI)
@@ -129,7 +129,7 @@ def parse_study(orthanc_study_uid):
             logger.info(f"Instance is not a SR, skipping {file}")
             continue
         try:
-            data = convert_dicom_to_json(file)
+            data = convert_dicom_to_json(ds)
         except Exception as e:
             logger.info(f"Error parsing SR {file} due to {e}")
             continue
