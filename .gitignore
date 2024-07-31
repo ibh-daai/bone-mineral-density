@@ -163,3 +163,5 @@ data
 notebook
 .DS_Store
 *.tar
+move.sh
+
