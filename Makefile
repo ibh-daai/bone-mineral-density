@@ -2,7 +2,7 @@ up:
 	docker compose --env-file .env up --build 
 
 upd:
-	docker compose --env-file .env up
+	docker compose --env-file .env up -d
 
 build:
 	DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose --env-file .env up --build
