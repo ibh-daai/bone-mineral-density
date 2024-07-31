@@ -452,9 +452,9 @@ def handle_lumbar_spine(
     return findings, scores, lumbar_scores, exclude_l4
 
 
-def get_neck_values(neck, sex, age):
-    min_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].idxmin()]
-    max_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].idxmax()]
+def get_neck_values(neck, age):
+    min_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].min()()]
+    max_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].max()]
     return min_neck, max_neck
 
 
@@ -477,24 +477,34 @@ def handle_femur(
         neck_reference = study_bmd_values.loc[study_bmd_values.region == f"Trend Neck"]
 
         if not neck.empty:
-            min_neck, max_neck = get_neck_values(neck, sex, age)
-            findings.append(
-                get_findings_text(
-                    min_neck,
-                    age,
-                    f"{side.upper()} FEMORAL NECK",
-                    neck_reference,
-                    cannot_be_compared,
+            if sex == "male":
+                min_neck, max_neck = get_neck_values(neck, age)
+                findings.append(
+                    get_findings_text(
+                        min_neck,
+                        age,
+                        f"{side.upper()} FEMORAL NECK",
+                        neck_reference,
+                        cannot_be_compared,
+                    )
                 )
-            )
-            scores.append(get_numerical_values(min_neck, age))
-
-            if sex == "male" and age >= 50:
+                scores.append(get_numerical_values(min_neck, age))
                 findings.append(
                     get_findings_text(
                         max_neck, age, f"{side.upper()} FEMORAL NECK (FEMALE REFERENCE)"
                     )
                 )
+            else:
+                findings.append(
+                    get_findings_text(
+                        neck,
+                        age,
+                        "LEFT FEMORAL NECK",
+                        neck_reference,
+                        cannot_be_compared,
+                    )
+                )
+                scores.append(get_numerical_values(neck, age))
 
         total = femur.loc[femur.region == "Total"]
         total_reference = study_bmd_values_reference.loc[
