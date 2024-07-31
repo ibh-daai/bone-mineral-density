@@ -62,6 +62,19 @@ def process_bmd(orthanc_study_uid):
 
     parse_study(orthanc_study_uid)
 
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    study = (
+        session.query(Study).filter_by(accession=accession).first()
+    )
+
+    if study is None:
+        logger.info(
+            f"Study {orthanc_study_uid} was not parsed"
+        )
+        return
+
     (
         reference_examination,
         technique,
