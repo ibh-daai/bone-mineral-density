@@ -452,12 +452,6 @@ def handle_lumbar_spine(
     return findings, scores, lumbar_scores, exclude_l4
 
 
-def get_neck_values(neck, age):
-    min_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].min()]
-    max_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].max()]
-    return min_neck, max_neck
-
-
 def handle_femur(
     study_bmd_values,
     side,
@@ -478,7 +472,9 @@ def handle_femur(
 
         if not neck.empty:
             if sex == "male":
-                min_neck, max_neck = get_neck_values(neck, age)
+                score_column = "t_score" if age >= 50 else "z_score"
+                min_neck = neck.loc[neck[score_column] == neck[score_column].min()]
+                max_neck = neck.loc[neck[score_column] == neck[score_column].max()]
                 findings.append(
                     get_findings_text(
                         min_neck,
@@ -512,9 +508,8 @@ def handle_femur(
         ]
         if not total.empty:
             if sex == "male":
-                min_total = total.loc[
-                    total["t_score" if age >= 50 else "z_score"].min()
-                ]
+                score_column = "t_score" if age >= 50 else "z_score"
+                min_total = total.loc[total[score_column] == total[score_column].min()]
                 findings.append(
                     get_findings_text(
                         min_total,
