@@ -70,11 +70,15 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     sr_ds.ContentTime = datetime.now().strftime("%H%M%S")
     sr_ds.InstanceCreationDate = sr_ds.ContentDate
     sr_ds.InstanceCreationTime = sr_ds.ContentTime
+    sr_ds.StudyDate = add_if_exists(ds, "StudyDate")
+    sr_ds.StudyTime = add_if_exists(ds, "StudyTime")
     sr_ds.StudyInstanceUID = add_if_exists(ds, "StudyInstanceUID")
     sr_ds.PatientID = add_if_exists(ds, "PatientID")
     sr_ds.PatientName = add_if_exists(ds, "PatientName")
     sr_ds.PatientBirthDate = add_if_exists(ds, "PatientBirthDate")
     sr_ds.PatientSex = add_if_exists(ds, "PatientSex")
+    sr_ds.AccessionNumber = add_if_exists(ds, "AccessionNumber")
+    sr_ds.ReferringPhysicianName = add_if_exists(ds, "ReferringPhysicianName")
 
     # Add content sequence with basic SR structure
     sr_ds.ContentSequence = Sequence()

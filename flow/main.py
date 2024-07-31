@@ -14,6 +14,7 @@ from utilities import (
     orthanc_get_session,
     orthanc_get_url_root,
     get_value_from_dict,
+    add_if_exists,
 )
 import pynetdicom
 from pynetdicom.sop_class import (
@@ -52,11 +53,12 @@ def process_bmd(orthanc_study_uid):
     ds = None
     for file in files:
         ds = dcmread(file)
-        accession = ds.AccessionNumber
         predictor_root = "1.2.826.0.1.3680043.10.1082."
         if predictor_root in ds.SeriesInstanceUID:
             logger.info(f"Study {orthanc_study_uid} already processed")
             return
+        if "AccessionNumber" in ds:
+            accession = ds.AccessionNumber
 
     parse_study(orthanc_study_uid)
 
