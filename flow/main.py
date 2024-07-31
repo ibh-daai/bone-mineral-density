@@ -22,6 +22,7 @@ from pynetdicom.sop_class import (
     SecondaryCaptureImageStorage,
     ComprehensiveSRStorage,
 )
+import json
 
 
 @flow(name="process-bmd", log_prints=True)
@@ -32,10 +33,14 @@ def process_bmd(orthanc_study_uid):
     engine = create_engine(DATABASE_URI)
     Base.metadata.create_all(engine)
 
-    download_study(orthanc_study_uid)
+    series = download_study(orthanc_study_uid)
+    for orthanc_series_uid in series:
+        instances = download_series(orthanc_series_uid, orthanc_study_uid)
+        for orthanc_instance_uid in instances:
+            download_instance(orthanc_instance_uid, orthanc_study_uid)
 
     ## Read dicom dir and get first file as instance
-    files = glob.glob(f"./{orthanc_study_uid}/IMAGES/*")
+    files = glob.glob(f"./{orthanc_study_uid}/*")
     if not len(files) > 0:
         logger.info(
             f"Study {orthanc_study_uid} does not contain any instances... Skipping"
@@ -94,18 +99,73 @@ def download_study(orthanc_study_uid):
     logger.info(f"Study {orthanc_study_uid} being downloaded")
 
     try:
-        ## Download study
-        url = f"{orthanc_root}/studies/{orthanc_study_uid}/media"
+        ## Get study
+        url = f"{orthanc_root}/studies/{orthanc_study_uid}"
         response = orthanc_session.get(url)
-        open(f"{orthanc_study_uid}.zip", "wb").write(response.content)
         if not response.ok:
             raise Exception(
                 f"Request failed with code {response.status_code}, returned error was: {response.text}"
             )
 
-        ## Unzip study
-        with zipfile.ZipFile(f"{orthanc_study_uid}.zip", "r") as zip_ref:
-            zip_ref.extractall(f"./{orthanc_study_uid}")
+        study = json.loads(response.text)
+        series = study["Series"]
+        return series
+
+    except Exception as e:
+        raise e
+
+
+@task(retries=3, retry_delay_seconds=5)
+def download_series(orthanc_series_uid, orthanc_study_uid):
+    logger = get_run_logger()
+    orthanc_session = orthanc_get_session()
+    orthanc_root = orthanc_get_url_root()
+
+    logger.info(f"Series {orthanc_series_uid} being downloaded")
+
+    try:
+        ## Get series
+        url = f"{orthanc_root}/series/{orthanc_series_uid}"
+        response = orthanc_session.get(url)
+        if not response.ok:
+            raise Exception(
+                f"Request failed with code {response.status_code}, returned error was: {response.text}"
+            )
+
+        series = json.loads(response.text)
+        instances = series["Instances"]
+        return instances
+
+    except Exception as e:
+        raise e
+
+
+@task(retries=3, retry_delay_seconds=5)
+def download_instance(orthanc_instance_uid, orthanc_study_uid):
+    logger = get_run_logger()
+    orthanc_session = orthanc_get_session()
+    orthanc_root = orthanc_get_url_root()
+
+    logger.info(f"Instance {orthanc_instance_uid} being downloaded")
+
+    try:
+        ## Get instance
+        url = f"{orthanc_root}/instances/{orthanc_instance_uid}/file"
+        response = orthanc_session.get(url)
+        if not response.ok:
+            raise Exception(
+                f"Request failed with code {response.status_code}, returned error was: {response.text}"
+            )
+
+        # Create directory for the study if it doesn't exist
+        study_dir = f"./{orthanc_study_uid}"
+        if not os.path.exists(study_dir):
+            os.makedirs(study_dir)
+
+        # Save the instance in the study directory
+        instance_path = os.path.join(study_dir, f"{orthanc_instance_uid}.dcm")
+        with open(instance_path, "wb") as instance_file:
+            instance_file.write(response.content)
 
     except Exception as e:
         raise e
@@ -120,7 +180,7 @@ def parse_study(orthanc_study_uid):
     engine = create_engine(DATABASE_URI)
     Session = sessionmaker(bind=engine)
     session = Session()
-    files = glob.glob(f"./{orthanc_study_uid}/IMAGES/*")
+    files = glob.glob(f"./{orthanc_study_uid}/*")
     for file in files:
         ds = dcmread(file)
 
