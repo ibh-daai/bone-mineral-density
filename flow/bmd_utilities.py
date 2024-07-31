@@ -655,7 +655,7 @@ def calculate_fracture_risk(
             two_or_more_fragility_fractures,
         )
 
-    if fracture_risk == "Cannot be calculated" & exclude_l4 == False:
+    if fracture_risk == "Cannot be calculated" and exclude_l4 == False:
         fracture_risk = get_fracture_risk_from_lumbar(lumbar_spine, age)
 
     return fracture_risk
