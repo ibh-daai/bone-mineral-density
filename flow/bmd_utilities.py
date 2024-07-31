@@ -453,7 +453,7 @@ def handle_lumbar_spine(
 
 
 def get_neck_values(neck, age):
-    min_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].min()()]
+    min_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].min()]
     max_neck = neck.loc[neck["t_score" if age >= 50 else "z_score"].max()]
     return min_neck, max_neck
 
@@ -511,21 +511,41 @@ def handle_femur(
             study_bmd_values_reference.region == f"Trend Total"
         ]
         if not total.empty:
-            min_total = total.loc[total["t_score" if age >= 50 else "z_score"].idxmin()]
-            findings.append(
-                get_findings_text(
-                    min_total,
-                    age,
-                    f"TOTAL PROXIMAL {side.upper()} FEMUR",
-                    total_reference,
-                    cannot_be_compared,
+            if sex == "male":
+                min_total = total.loc[
+                    total["t_score" if age >= 50 else "z_score"].min()
+                ]
+                findings.append(
+                    get_findings_text(
+                        min_total,
+                        age,
+                        f"TOTAL PROXIMAL {side.upper()} FEMUR",
+                        total_reference,
+                        cannot_be_compared,
+                    )
                 )
-            )
-            value = get_change_value(total, total_reference)
-            if value and not cannot_be_compared:
-                change_values.append(get_change_type(value, "hip", institution_name))
-            scores.append(get_numerical_values(min_total, age))
-
+                value = get_change_value(total, total_reference)
+                if value and not cannot_be_compared:
+                    change_values.append(
+                        get_change_type(value, "hip", institution_name)
+                    )
+                scores.append(get_numerical_values(min_total, age))
+            else:
+                findings.append(
+                    get_findings_text(
+                        total,
+                        age,
+                        "TOTAL PROXIMAL LEFT FEMUR",
+                        total_reference,
+                        cannot_be_compared,
+                    )
+                )
+                value = get_change_value(total, total_reference)
+                if value and not cannot_be_compared:
+                    change_values.append(
+                        get_change_type(value, "hip", institution_name)
+                    )
+                scores.append(get_numerical_values(total, age))
     return findings
 
 
