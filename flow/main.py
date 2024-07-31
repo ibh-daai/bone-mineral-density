@@ -32,7 +32,7 @@ def process_bmd(orthanc_study_uid):
     engine = create_engine(DATABASE_URI)
     Base.metadata.create_all(engine)
 
-    ## download_study(orthanc_study_uid)
+    download_study(orthanc_study_uid)
 
     ## Read dicom dir and get first file as instance
     files = glob.glob(f"./{orthanc_study_uid}/IMAGES/*")
