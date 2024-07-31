@@ -23,7 +23,8 @@ def orthanc_get_session():
 
 
 def orthanc_get_url_root():
-    return "http://orthanc:8042"
+    url = os.environ.get("PREFECT_SERVER_API_HOST")
+    return f"http://{url}:8042"
 
 
 def add_if_exists(ds: Dataset, field: str):

@@ -1,17 +1,23 @@
 ###
-### A complete description of a Prefect Deployment for flow 'extract-studies'
+### A complete description of a Prefect Deployment for flow 'process-bmd'
 ###
 name: bmd
 description: null
-version: 9c2f27e16468d6315c34e3798c169fe6
+version: 7fd4bf29d8476443ae4097b46213a623
 # The work queue that will handle this deployment's runs
 work_queue_name: bmd-pool
-work_pool_name: null
+work_pool_name: default-agent-pool
 tags: []
 parameters: {}
 schedule: null
-is_schedule_active: null
+is_schedule_active: true
 infra_overrides: {}
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: process-bmd
+manifest_path: null
 infrastructure:
   type: process
   env: {}
@@ -20,22 +26,23 @@ infrastructure:
   command: null
   stream_output: true
   working_dir: null
+  _block_document_id: 72a20b1d-a976-4e08-a462-55f5d1227107
+  _block_document_name: anonymous-25edaf88-e6e1-4ebb-926b-8d0d8a27a8f1
+  _is_anonymous: true
   block_type_slug: process
   _block_type_slug: process
-
-###
-### DO NOT EDIT BELOW THIS LINE
-###
-flow_name: process-bmd
-manifest_path: null
 storage: null
 path: /usr/src/app/
 entrypoint: main.py:process_bmd
 parameter_openapi_schema:
   title: Parameters
   type: object
-  properties: {}
-  required: null
+  properties:
+    orthanc_study_uid:
+      title: orthanc_study_uid
+      position: 0
+  required:
+  - orthanc_study_uid
   definitions: null
-timestamp: '2024-07-30T12:35:21.035015+00:00'
+timestamp: '2024-07-31T18:20:18.169423+00:00'
 triggers: []
