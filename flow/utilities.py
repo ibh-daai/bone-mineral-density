@@ -23,8 +23,7 @@ def orthanc_get_session():
 
 
 def orthanc_get_url_root():
-    url = os.environ.get("PREFECT_SERVER_API_HOST")
-    return f"http://{url}:8042"
+    return "http://ai-orchestrator-orthanc-1:8042"
 
 
 def add_if_exists(ds: Dataset, field: str):
