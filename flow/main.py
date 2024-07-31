@@ -24,15 +24,15 @@ from pynetdicom.sop_class import (
 )
 
 
-@flow(name="extract-studies", log_prints=True)
-def extract_studies(orthanc_study_uid):
+@flow(name="process-bmd", log_prints=True)
+def process_bmd(orthanc_study_uid):
     logger = get_run_logger()
 
     DATABASE_URI = os.getenv("DATABASE_URI")
     engine = create_engine(DATABASE_URI)
     Base.metadata.create_all(engine)
 
-    download_study(orthanc_study_uid)
+    ## download_study(orthanc_study_uid)
 
     ## Read dicom dir and get first file as instance
     files = glob.glob(f"./{orthanc_study_uid}/IMAGES/*")

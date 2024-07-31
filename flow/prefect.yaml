@@ -26,11 +26,11 @@ infrastructure:
 ###
 ### DO NOT EDIT BELOW THIS LINE
 ###
-flow_name: extract-studies
+flow_name: process-bmd
 manifest_path: null
 storage: null
 path: /usr/src/app/
-entrypoint: main.py:extract_studies
+entrypoint: main.py:process_bmd
 parameter_openapi_schema:
   title: Parameters
   type: object

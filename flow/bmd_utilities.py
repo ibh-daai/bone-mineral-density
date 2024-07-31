@@ -644,6 +644,7 @@ def return_findings(
     fragility_vertebral_fracture,
     two_or_more_fragility_fractures,
     cannot_be_compared,
+    institution_name,
 ):
     findings = []
     scores = []
@@ -651,8 +652,6 @@ def return_findings(
     change_values = []
 
     study = studies.loc[studies.id == study_id]
-
-    institution_name = study["institution_name"].values[0]
 
     study_bmd_values = get_study_bmd_values(study_id, bmd_values)
 
@@ -688,6 +687,7 @@ def return_findings(
             study_bmd_values_reference,
             cannot_be_compared,
             scores,
+            change_values,
             institution_name,
         )
     )
@@ -700,6 +700,7 @@ def return_findings(
             study_bmd_values_reference,
             cannot_be_compared,
             scores,
+            change_values,
             institution_name,
         )
     )
@@ -1158,6 +1159,7 @@ def process_sample(
             fragility_vertebral_fracture,
             two_or_more_fragility_fractures,
             cannot_be_compared,
+            study_details["institution_name"],
         )
     )
 

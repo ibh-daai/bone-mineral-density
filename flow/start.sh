@@ -4,7 +4,7 @@
 sleep 5
 
 # deploy prefect-flows
-prefect deployment build main.py:extract_studies \
+prefect deployment build main.py:process_bmd \
                       -n bmd \
                       -q bmd-pool \
                       -o prefect.yaml \
