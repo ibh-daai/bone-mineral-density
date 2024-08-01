@@ -348,7 +348,7 @@ def handle_lumbar_spine_combination(
             )
 
         value = get_change_value(lumbar_region, lumbar_region_reference)
-        if value is not None and cannot_be_compared != False:
+        if value is not None and cannot_be_compared == False:
             change_values.append(
                 get_change_type(value, "lumbar spine", institution_name)
             )
@@ -387,7 +387,7 @@ def handle_lumbar_spine(
                     )
                 )
                 value = get_change_value(l1_l4, l1_l4_reference)
-                if value != None and cannot_be_compared != False:
+                if value != None and cannot_be_compared == False:
                     change_values.append(
                         get_change_type(value, "lumbar spine", institution_name)
                     )
@@ -412,7 +412,7 @@ def handle_lumbar_spine(
                     "L4 has been excluded from these calculations because it is significantly different than all the other vertebral bodies.\n"
                 )
                 value = get_change_value(l1_l3, l1_l3_reference)
-                if value != None and cannot_be_compared != False:
+                if value != None and cannot_be_compared == False:
                     change_values.append(
                         get_change_type(value, "lumbar spine", institution_name)
                     )
@@ -437,7 +437,7 @@ def handle_lumbar_spine(
                     "L1 has been excluded from these calculations because it is significantly different than all the other vertebral bodies.\n"
                 )
                 value = get_change_value(l2_l4, l2_l4_reference)
-                if value != None and cannot_be_compared != False:
+                if value != None and cannot_be_compared == False:
                     change_values.append(
                         get_change_type(value, "lumbar spine", institution_name)
                     )
@@ -449,7 +449,7 @@ def handle_lumbar_spine(
             )
     else:
         findings.append("Lumbar spine: No valid scans available.")
-    return findings, scores, lumbar_scores, exclude_l4
+    return findings, scores, lumbar_scores, exclude_l4, change_values
 
 
 def handle_femur(
@@ -692,7 +692,7 @@ def return_findings(
     )
 
     lumbar_spine = study_bmd_values.loc[study_bmd_values.body_part == "AP Spine"]
-    findings, scores, lumbar_scores, exclude_l4 = handle_lumbar_spine(
+    findings, scores, lumbar_scores, exclude_l4, change_values = handle_lumbar_spine(
         lumbar_spine,
         study_bmd_values_reference,
         age,
@@ -716,6 +716,7 @@ def return_findings(
             institution_name,
         )
     )
+
     findings.extend(
         handle_femur(
             study_bmd_values,
