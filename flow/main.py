@@ -7,14 +7,12 @@ import os, glob
 from prefect import task, flow, get_run_logger
 from pydicom import dcmread
 import pydicom.uid
-import zipfile
 from bmd_utilities import process_sample, get_report_text
 from utilities import (
     create_sr,
     orthanc_get_session,
     orthanc_get_url_root,
     get_value_from_dict,
-    add_if_exists,
 )
 import pynetdicom
 from pynetdicom.sop_class import (
@@ -102,6 +100,10 @@ def process_bmd(orthanc_study_uid):
         diagnostic_category=diagnostic_category,
         fracture_risk=fracture_risk,
         generatedReport=generatedReport,
+    )
+
+    logger.info(
+        f"Study {orthanc_study_uid} processed. Diagnostic Category: {diagnostic_category}, Fracture Risk: {fracture_risk}"
     )
 
 
