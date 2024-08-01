@@ -117,8 +117,6 @@ class BMDTrendValue(Base):
 class Result(Base):
     __tablename__ = "results"
     id = Column(Integer, primary_key=True)
-    sopInstanceUID = Column(String)
-    seriesInstanceUID = Column(String)
     studyInstanceUID = Column(String)
     patientID = Column(String)
     accession = Column(String)
