@@ -12,4 +12,4 @@ prefect deployment build main.py:process_bmd \
                       --apply
 
 # start the agent
-prefect agent start -q 'bmd-pool'
+prefect agent start -q 'bmd-pool' --limit 5
