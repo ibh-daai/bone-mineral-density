@@ -58,27 +58,40 @@ def create_sr(ds, reference_examination, technique, findings, summary):
     # Create the FileDataset instance
     sr_ds = Dataset()
 
-    # Set the necessary metadata
     sr_ds.Modality = "SR"
-    sr_ds.SOPClassUID = ComprehensiveSRStorage
-    sr_ds.SOPInstanceUID = sop_uid
-    sr_ds.SeriesInstanceUID = series_uid
-    sr_ds.SeriesNumber = "3"
-    sr_ds.InstanceNumber = "1"
 
-    sr_ds.ContentDate = datetime.now().strftime("%Y%m%d")
-    sr_ds.ContentTime = datetime.now().strftime("%H%M%S")
-    sr_ds.InstanceCreationDate = sr_ds.ContentDate
-    sr_ds.InstanceCreationTime = sr_ds.ContentTime
-    sr_ds.StudyDate = add_if_exists(ds, "StudyDate")
-    sr_ds.StudyTime = add_if_exists(ds, "StudyTime")
-    sr_ds.StudyInstanceUID = add_if_exists(ds, "StudyInstanceUID")
+    # Set the necessary metadata
     sr_ds.PatientID = add_if_exists(ds, "PatientID")
     sr_ds.PatientName = add_if_exists(ds, "PatientName")
     sr_ds.PatientBirthDate = add_if_exists(ds, "PatientBirthDate")
     sr_ds.PatientSex = add_if_exists(ds, "PatientSex")
+    sr_ds.PatientAge = add_if_exists(ds, "PatientAge")
+
+    sr_ds.StudyDate = add_if_exists(ds, "StudyDate")
+    sr_ds.StudyTime = add_if_exists(ds, "StudyTime")
+    sr_ds.StudyDescription = add_if_exists(ds, "StudyDescription")
+    sr_ds.StudyInstanceUID = add_if_exists(ds, "StudyInstanceUID")
     sr_ds.AccessionNumber = add_if_exists(ds, "AccessionNumber")
     sr_ds.ReferringPhysicianName = add_if_exists(ds, "ReferringPhysicianName")
+
+    sr_ds.Manufacturer = "AIDE"
+    sr_ds.ManufacturerModelName = "BMD"
+    sr_ds.SoftwareVersions = "1.0"
+    sr_ds.BodyPartExamined = ""
+
+    sr_ds.SeriesDate = datetime.now().strftime("%Y%m%d") 
+    sr_ds.SeriesTime = datetime.now().strftime("%H%M%S") 
+    sr_ds.SeriesDescription = "Automated Interpretation"
+    sr_ds.SeriesInstanceUID = series_uid
+    sr_ds.SeriesNumber = "3"
+
+    sr_ds.ContentDate = sr_ds.SeriesDate
+    sr_ds.ContentTime = sr_ds.SeriesTime
+    sr_ds.InstanceCreationDate = sr_ds.SeriesDate
+    sr_ds.InstanceCreationTime = sr_ds.SeriesTime
+    sr_ds.InstanceNumber = "1"
+    sr_ds.SOPInstanceUID = sop_uid
+    sr_ds.SOPClassUID = ComprehensiveSRStorage
 
     # Add content sequence with basic SR structure
     sr_ds.ContentSequence = Sequence()
