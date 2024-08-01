@@ -144,3 +144,18 @@ def get_value_from_dict(data_dict, keys):
         else:
             return None
     return data_dict
+
+
+def parse_date(date_str):
+    # Define the possible date formats
+    formats = ["%d-%b-%Y", "%Y-%m-%d"]
+    
+    # Try parsing the date string using each format
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+    
+    # Raise an error if the date string does not match any format
+    raise ValueError(f"Date string '{date_str}' is not in a recognized format")

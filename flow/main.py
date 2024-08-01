@@ -13,6 +13,7 @@ from utilities import (
     orthanc_get_session,
     orthanc_get_url_root,
     get_value_from_dict,
+    parse_date
 )
 import pynetdicom
 from pynetdicom.sop_class import (
@@ -322,7 +323,7 @@ def parse_study(orthanc_study_uid):
                                     trend_data,
                                     ["PCHANGE_VS_PREVIOUS", "BMD", "value"],
                                 )
-                                date = datetime.strptime(date_str, "%d-%b-%Y")
+                                date = parse_date(date_str)
                                 bmd_trend_value = BMDTrendValue(
                                     report_id=report.id,
                                     study_id=study.id,
