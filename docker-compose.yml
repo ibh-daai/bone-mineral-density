@@ -1,0 +1,36 @@
+version: '3'
+services:
+  postgres-bmd:
+    build: postgres
+    ports: ["5433:5432"]
+    restart: unless-stopped
+    networks:
+      - ai_network
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TIME_ZONE}
+    volumes:
+      - bmd-postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      retries: 5
+  bmd:
+    build: flow
+    depends_on: [postgres-bmd]
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    networks:
+      - ai_network
+    environment:
+      ORTHANC_API_USER: ${ORTHANC_API_USER}
+      ORTHANC_API_PASSWORD: ${ORTHANC_API_PASSWORD}
+      DATABASE_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-bmd:5432/${POSTGRES_DB}
+networks:
+  ai_network:
+    external: true
+volumes:
+  bmd-postgres-db-volume:
